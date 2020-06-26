@@ -292,10 +292,11 @@ function handleBuildSettings (platformConfig, locations, infoPlist) {
         return Q();
     }
 
-    if (origPkg !== pkg) {
-        events.emit('verbose', `Set PRODUCT_BUNDLE_IDENTIFIER to ${pkg}.`);
-        project.xcode.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', pkg);
-    }
+    // Remove this because it replaces correct build identities in extensions
+    // if (origPkg !== pkg) {
+    //     events.emit('verbose', `Set PRODUCT_BUNDLE_IDENTIFIER to ${pkg}.`);
+    //     project.xcode.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', pkg);
+    // }
 
     if (targetDevice) {
         events.emit('verbose', `Set TARGETED_DEVICE_FAMILY to ${targetDevice}.`);

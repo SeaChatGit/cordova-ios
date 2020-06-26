@@ -129,7 +129,7 @@ module.exports.run = buildOpts => {
             const buildType = buildOpts.release ? 'release' : 'debug';
             const config = buildConfig.ios[buildType];
             if (config) {
-                ['codeSignIdentity', 'codeSignResourceRules', 'provisioningProfile', 'developmentTeam', 'packageType', 'buildFlag', 'iCloudContainerEnvironment', 'automaticProvisioning'].forEach(
+                ['codeSignIdentity', 'codeSignResourceRules', 'provisioningProfile', 'developmentTeam', 'packageType', 'buildFlag', 'iCloudContainerEnvironment', 'automaticProvisioning', 'multipleProvisioningProfiles'].forEach(
                     key => {
                         buildOpts[key] = buildOpts[key] || config[key];
                     });
@@ -176,6 +176,9 @@ module.exports.run = buildOpts => {
         .then(() => findXCodeProjectIn(projectPath))
         .then(name => {
             projectName = name;
+
+            events.emit('log', `projectName: ${name}`);
+
             let extraConfig = '';
             if (buildOpts.codeSignIdentity) {
                 extraConfig += `CODE_SIGN_IDENTITY = ${buildOpts.codeSignIdentity}\n`;
@@ -184,9 +187,12 @@ module.exports.run = buildOpts => {
             if (buildOpts.codeSignResourceRules) {
                 extraConfig += `CODE_SIGN_RESOURCE_RULES_PATH = ${buildOpts.codeSignResourceRules}\n`;
             }
-            if (buildOpts.provisioningProfile) {
-                extraConfig += `PROVISIONING_PROFILE = ${buildOpts.provisioningProfile}\n`;
+            if (buildOpts.multipleProvisioningProfiles) {
+                extraConfig += `PROVISIONING_PROFILE = ${buildOpts.multipleProvisioningProfiles[0].value}\n`;
+                events.emit('log', 'buildOpts = ' + JSON.stringify(buildOpts));
+                events.emit('log', `PROVISIONING_PROFILE = ${buildOpts.multipleProvisioningProfiles[0].value}\n`);
             }
+
             if (buildOpts.developmentTeam) {
                 extraConfig += `DEVELOPMENT_TEAM = ${buildOpts.developmentTeam}\n`;
             }
@@ -202,7 +208,7 @@ module.exports.run = buildOpts => {
                 project.write();
             }
 
-            if (buildOpts.provisioningProfile) {
+            if (buildOpts.provisioningProfile || buildOpts.multipleProvisioningProfiles) {
                 events.emit('verbose', 'ProvisioningProfile build option set, changing project settings to Manual.');
                 writeCodeSignStyle('Manual');
             } else if (buildOpts.automaticProvisioning) {
@@ -247,10 +253,14 @@ module.exports.run = buildOpts => {
                 exportOptions.teamID = buildOpts.developmentTeam;
             }
 
-            if (buildOpts.provisioningProfile && bundleIdentifier) {
-                exportOptions.provisioningProfiles = { [bundleIdentifier]: String(buildOpts.provisioningProfile) };
+            if (buildOpts.multipleProvisioningProfiles && bundleIdentifier) {
+                exportOptions.provisioningProfiles = {
+                    [buildOpts.multipleProvisioningProfiles[0].key]: String(buildOpts.multipleProvisioningProfiles[0].value),
+                    [buildOpts.multipleProvisioningProfiles[1].key]: String(buildOpts.multipleProvisioningProfiles[1].value)
+                };
                 exportOptions.signingStyle = 'manual';
             }
+            events.emit('log', `exportOptions.provisioningProfiles = ${JSON.stringify(exportOptions.provisioningProfiles)}\n`);
 
             if (buildOpts.codeSignIdentity) {
                 exportOptions.signingCertificate = buildOpts.codeSignIdentity;
