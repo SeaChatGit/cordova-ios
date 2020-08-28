@@ -254,11 +254,28 @@ module.exports.run = buildOpts => {
             }
 
             if (buildOpts.multipleProvisioningProfiles && bundleIdentifier) {
-                exportOptions.provisioningProfiles = {
-                    [buildOpts.multipleProvisioningProfiles[0].key]: String(buildOpts.multipleProvisioningProfiles[0].value),
-                    [buildOpts.multipleProvisioningProfiles[1].key]: String(buildOpts.multipleProvisioningProfiles[1].value),
-                    [buildOpts.multipleProvisioningProfiles[2].key]: String(buildOpts.multipleProvisioningProfiles[2].value)
-                };
+                if (buildOpts.multipleProvisioningProfiles[2].key) {
+                  exportOptions.provisioningProfiles = {
+                    [buildOpts.multipleProvisioningProfiles[0].key]: String(
+                      buildOpts.multipleProvisioningProfiles[0].value
+                    ),
+                    [buildOpts.multipleProvisioningProfiles[1].key]: String(
+                      buildOpts.multipleProvisioningProfiles[1].value
+                    ),
+                    [buildOpts.multipleProvisioningProfiles[2].key]: String(
+                      buildOpts.multipleProvisioningProfiles[2].value
+                    ),
+                  };
+                } else {
+                    exportOptions.provisioningProfiles = {
+                      [buildOpts.multipleProvisioningProfiles[0].key]: String(
+                        buildOpts.multipleProvisioningProfiles[0].value
+                      ),
+                      [buildOpts.multipleProvisioningProfiles[1].key]: String(
+                        buildOpts.multipleProvisioningProfiles[1].value
+                      )
+                    };
+                }
                 exportOptions.signingStyle = 'manual';
             }
             events.emit('log', `exportOptions.provisioningProfiles = ${JSON.stringify(exportOptions.provisioningProfiles)}\n`);
