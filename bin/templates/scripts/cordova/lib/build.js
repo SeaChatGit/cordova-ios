@@ -254,7 +254,7 @@ module.exports.run = buildOpts => {
             }
 
             if (buildOpts.multipleProvisioningProfiles && bundleIdentifier) {
-                if (buildOpts.multipleProvisioningProfiles[2].key) {
+                if (buildOpts.multipleProvisioningProfiles.length > 2) {
                   exportOptions.provisioningProfiles = {
                     [buildOpts.multipleProvisioningProfiles[0].key]: String(
                       buildOpts.multipleProvisioningProfiles[0].value
